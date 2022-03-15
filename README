@@ -1,0 +1,36 @@
+## Project 1: The Scanner
+
+Name:		Duong Tuan Hoang
+Section: 	CMPSCI 4280 - Program Translation Project
+VCS:		git
+Date:		02/24/2022
+Project Option:	Option 3 with FSA table + driver (100 points) 
+
+## Files	
+	main.c - the main program to process the input
+	testScanner.h, testScanner.c - the testing program
+	token.h - header file defining tokenID and token data type
+	lex.h - header file defining basic lexical definition
+	helper.h - header file containing FSA table and references to operators, keywords, token names and errors
+	scanner.h, scanner.c - containing FSA Driver and other helper function
+	Makefile 	
+
+## Run the program
+	> make
+	> To give the program keyboard input, run: ./P0 (remember to Enter and then Ctrl + D 
+	to finish the input)
+	> To direct the input from a file into program, run: ./P0 < filename
+	> To let the program read input from a file, run: ./P0 filename
+
+## Remove all executable and object files
+
+	> make clean
+
+## Description
+	> Based on the lexical definition provided, the scanner will parse through the file and 
+	export 4 types of token "identifier", "number", "operator", and "EOF".
+	> The scanner will automatically skip whitespace and comments surrounded by "##".
+	> The token is then printed to the output with its instance, token type, line number and 
+	which position this token starts.
+	> This scanner can determine 5 errors which is specified in the lex.h. If the program encounter
+	error, the error is reported to the screen and then the program is terminated. 	
