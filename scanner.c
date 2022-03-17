@@ -7,6 +7,7 @@
 #include "token.h"
 #include <stdlib.h>
 
+extern char* fileName;
 extern char nextChar;
 static int countChar = 1;
 static int countLine = 1;
@@ -16,21 +17,37 @@ int whitespace_flag = 0;
 int comment_flag = 0;
 char* FSAFile = "FSADriver";
 
-void printError(struct token * tok)
+void printRed()
+{
+	printf("\033[1;31m");
+}
+
+void printYellow()
+{
+	printf("\033[1;33m");
+}
+
+void printReset()
+{
+	printf("\033[0m");
+}
+
+void printScannerError(struct token * tok)
 {
         int errorCode = ERROR - tok->tokenID - 1;
-        printf("\033[1;31m");
-        printf("SCANNER ERROR: ");
-        printf("\033[1;33m");
-        printf("%s ",errorString[errorCode]);
-        printf("(string: \'%s\', line: %d, starting char: %d)\n",tok->tokenIns, tok->line, tok->charN);
-        printf("\033[0m");
+        printRed();
+	printf("%s:%d:%d: SCANNER ERROR: ",fileName,tok->line,tok->charN);
+        printYellow();
+	printf("%s ",errorString[errorCode]);
+        printf("(string: \'%s\')\n",tok->tokenIns);
+        printReset();
+	exit(-1);
 }
 void printToken(struct token * tok)
 {
         if(tok->tokenID == COMMENT)
                 return;
-        printf("String: \'%s\',",tok->tokenIns);
+       	printf("String: \'%s\',",tok->tokenIns);
         printf(" token type: \'%s\',",tokenNames[tok->tokenID]);
         printf(" line: %d,",tok->line);
         printf(" starting char: %d.\n",tok->charN);
@@ -180,6 +197,8 @@ struct token * FSADriver(FILE* fp)
 				}
 			}else if(tok->tokenID == COMMENT){
 				comment_flag = 0;
+			}else if(tok->tokenID < ERROR){
+				printScannerError(tok);
 			}
 					
 			break;			

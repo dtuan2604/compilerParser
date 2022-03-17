@@ -4,11 +4,15 @@
 
 #define NUM_ERRORS 3 
 
-void printError(struct token * tok);
+void printScannerError(struct token * tok);
 void printToken(struct token * tok);
 
 int isKeyword(char* identifier);
 int isOperator(char character);
 int charToFSAIndex(char character);
 struct token * FSADriver(FILE* fp);
+
+void printRed();
+void printYellow();
+void printReset();
 #endif

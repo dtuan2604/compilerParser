@@ -6,7 +6,7 @@
 #define BUFF 200
 
 char prog[BUFF];
-char fileName[BUFF];
+char* fileName;
 
 int isfileEmpty(FILE* fp, char* caller);
 
@@ -14,7 +14,14 @@ int isfileEmpty(FILE* fp, char* caller);
 int main(int argc, char** argv)
 {
 	strcpy(prog,argv[0]);
-	
+	fileName = (char *)malloc(BUFF);
+	if(fileName == NULL)
+	{
+                printf("ERROR: %s: failed to allocate memory for filename\n",prog);
+               	return EXIT_FAILURE;
+       	}		
+	memset(fileName,'\0',BUFF);
+
 	if(argc == 2)
 	{
 		strcpy(fileName, argv[1]);
@@ -54,9 +61,10 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	if(runParser(fileName) == 0)
+	if(runParser() == 0)
 		return EXIT_FAILURE;	
-	
+	free(fileName);
+	fileName = NULL;
 	return EXIT_SUCCESS;		
 }
 
