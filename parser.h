@@ -4,6 +4,7 @@
 #define PARABUFF 500
 
 void scanner();
+int matching(int Token, char* TokenIns);
 
 void printParserError(char* fmt, ...);
 
@@ -11,6 +12,8 @@ int isfileEmpty(FILE* fp, char* caller);
 int runParser();
 
 void program();
+void block();
 void vars();
+void stats();
 
 #endif

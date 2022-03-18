@@ -63,6 +63,10 @@ int main(int argc, char** argv)
 
 	if(runParser() == 0)
 		return EXIT_FAILURE;	
+	
+	printf("Succesfully parse the program\n");
+
+
 	free(fileName);
 	fileName = NULL;
 	return EXIT_SUCCESS;		

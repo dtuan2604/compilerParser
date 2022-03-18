@@ -67,6 +67,14 @@ void scanner()
 		epsilon_flag = 0;
 	return;	
 }
+int matching(int Token, char* TokenIns)
+{
+	if(nextTok->tokenID == Token && (TokenIns == NULL || strcmp(nextTok->tokenIns,TokenIns) == 0))
+			return 1;
+
+	return 0;
+
+}
 int runParser()
 {
 	fp = fopen(fileName, "r");
@@ -74,6 +82,7 @@ int runParser()
 		return 0;
 	nextChar = fgetc(fp);
 	
+	scanner();	
 	program();	
 
 	fclose(fp);
@@ -84,34 +93,52 @@ int runParser()
 
 void program()
 {
-	scanner();
 	vars();
 
 	scanner();
-	if(nextTok->tokenID != KEYWORD || strcmp(nextTok->tokenIns,"main") != 0)
-		printParserError("Expected 'main' token, but received '%s'",nextTok->tokenIns);
-	//process 'block' non terminal
+	if(matching(KEYWORD,"main") == 0)
+		printParserError("Expected 'main' token, but received '%s'\n",nextTok->tokenIns);
+	
+	scanner();
+	block();	
 	return;
 }
+void block()
+{
+	if(matching(OPERATOR,"{") == 0)
+		printParserError("Expected a block of statements, but received '%s'\n",nextTok->tokenIns);
+	
+	scanner();
+	vars();
+	
+	//scanner();
+	//stats();
 
+	scanner();
+	if(matching(OPERATOR,"}") == 0)
+		printParserError("Reach the end of non-closing block, received %s\n",nextTok->tokenIns);
+
+	return;		
+
+}
 void vars()
 {
 	//create a node and add all token to the node
-	if(nextTok->tokenID == KEYWORD && strcmp(nextTok->tokenIns,"declare") == 0){
+	if(matching(KEYWORD,"declare") == 1){
 		scanner();
-		if(nextTok->tokenID != IDENT)
-			printParserError("Expected an Identifier token after 'declare' token");
+		if(matching(IDENT, NULL) == 0)
+			printParserError("Expected an Identifier token after 'declare' token\n");
 		scanner();
-		if(nextTok->tokenID != OPERATOR || strcmp(nextTok->tokenIns,":=") != 0)
+		if(matching(OPERATOR,":=") == 0)
 			printParserError("Expected ':=', but received '%s'\n",nextTok->tokenIns);
 		
 		scanner();
-		if(nextTok->tokenID != KEYWORD || strcmp(nextTok->tokenIns,"whole") != 0)
+		if(matching(KEYWORD,"whole") == 0)
 			printParserError("Expected data type 'whole', but received '%s'\n",nextTok->tokenIns);
 		
 		scanner();
-		if(nextTok->tokenID != OPERATOR || strcmp(nextTok->tokenIns,";") != 0)
-                        printParserError("Expected ';' before '%s' token",nextTok->tokenIns);
+		if(matching(OPERATOR,";") == 0) 
+                        printParserError("Expected ';' before '%s' tokeni\n",nextTok->tokenIns);
 	
 		scanner();
 		vars();
@@ -122,6 +149,23 @@ void vars()
 	}
 	return; //should return a node then
 }
+void stats()
+{
+		
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 
