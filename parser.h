@@ -14,6 +14,19 @@ int runParser();
 void program();
 void block();
 void vars();
+
 void stats();
+void stat();
+void mStat();
+
+void in();
+void out();
+void if_();
+void loop1();
+void loop2();
+void assign();
+void goto_();
+void label();
+
 
 #endif

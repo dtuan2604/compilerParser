@@ -111,8 +111,8 @@ void block()
 	scanner();
 	vars();
 	
-	//scanner();
-	//stats();
+	scanner();
+	stats();
 
 	scanner();
 	if(matching(OPERATOR,"}") == 0)
@@ -138,7 +138,7 @@ void vars()
 		
 		scanner();
 		if(matching(OPERATOR,";") == 0) 
-                        printParserError("Expected ';' before '%s' tokeni\n",nextTok->tokenIns);
+                        printParserError("Expected ';' before '%s' token\n",nextTok->tokenIns);
 	
 		scanner();
 		vars();
@@ -151,11 +151,102 @@ void vars()
 }
 void stats()
 {
-		
+	stat();
 
+	scanner();
+	mStat();
+	
+	return;			
 
 }
+void stat()
+{
+	int block_flag = 0;
+	if(matching(KEYWORD, NULL) == 1){
+		if(strcmp(nextTok->tokenIns,"listen") == 0)
+			in();
+		else if(strcmp(nextTok->tokenIns,"yell") == 0)
+			out();
+		else if(strcmp(nextTok->tokenIns,"if") == 0)
+			if_();
+                else if(strcmp(nextTok->tokenIns,"while") == 0)
+			loop1();
+                else if(strcmp(nextTok->tokenIns,"repeat") == 0)
+			loop2();
+                else if(strcmp(nextTok->tokenIns,"assign") == 0)
+			assign();
+                else if(strcmp(nextTok->tokenIns,"portal") == 0)
+			goto_();
+                else if(strcmp(nextTok->tokenIns,"label") == 0)
+			label();
+                else if(strcmp(nextTok->tokenIns,"{") == 0){
+			block();
+			block_flag = 1;
+		}
+	}else
+		printParserError("Expected a statement, but received '%s' token\n", nextTok->tokenIns);
+	
+	scanner();
+	if(block_flag == 0){
+		if(matching(OPERATOR,";") == 0)  
+                        printParserError("Expected ';' before '%s' token\n",nextTok->tokenIns);	
+	}else
+		epsilon_flag = 1; //
+	return;
+}
+void mStat()
+{
+	if(matching(KEYWORD,NULL) == 1 || matching(OPERATOR,"{") == 1){
+		stat();
 
+		scanner();
+		mStat();
+	}else{
+		epsilon_flag = 1; // received an epsilon token
+		return;
+	}
+
+	return;
+}
+void in()
+{
+	if(matching(KEYWORD,"listen") == 0)
+		printParserError("Do you mean 'listen' ? (Received '%s' token)\n",nextTok->tokenIns);
+	
+	scanner();
+	if(matching(IDENT,NULL) == 0)
+		printParserError("Expected an identifier, but received '%s' token\n",nextTok->tokenIns);
+
+	return; 
+}
+void out() //REMINDER: need adjusting
+{
+	if(matching(KEYWORD,"yell") == 0)
+                printParserError("Do you mean 'listen' ? (Received '%s' token)\n",nextTok->tokenIns);
+    
+        //scanner();
+	//expr();
+        return; 
+
+}
+void if_() //REMINDER: need adjusting
+{
+}
+void loop1()
+{
+}
+void loop2()
+{
+}
+void assign()
+{
+}
+void goto_()
+{
+}
+void label()
+{
+}
 
 
 
