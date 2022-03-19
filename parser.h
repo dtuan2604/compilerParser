@@ -27,6 +27,14 @@ void loop2();
 void assign();
 void goto_();
 void label();
+void condition(); //extra non-terminal
+void RO();
 
+void expr();
+void N();
+void N_();
+void A();
+void M();
+void R();
 
 #endif

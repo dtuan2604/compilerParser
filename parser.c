@@ -191,7 +191,7 @@ void stat()
 		if(matching(OPERATOR,";") == 0)  
                         printParserError("Expected ';' before '%s' token\n",nextTok->tokenIns);	
 	}else
-		epsilon_flag = 1; //
+		epsilon_flag = 1; //assuming after <block> terminal is an epsilon character
 	return;
 }
 void mStat()
@@ -224,30 +224,166 @@ void out() //REMINDER: need adjusting
 	if(matching(KEYWORD,"yell") == 0)
                 printParserError("Do you mean 'listen' ? (Received '%s' token)\n",nextTok->tokenIns);
     
-        //scanner();
-	//expr();
+        scanner();
+	expr();
+	
         return; 
 
 }
+void condition() //REMINDER: need adjusting
+{
+	if(matching(OPERATOR, "[") == 0)
+        	printParserError("Expected '[' before '%s' token\n",nextTok->tokenIns);
+
+        scanner();
+        expr();
+
+        scanner();
+        RO();
+
+        scanner();
+        expr();
+
+        scanner();
+        if(matching(OPERATOR, "]") == 0)
+                 printParserError("Expected ']' before '%s' token\n",nextTok->tokenIns);
+
+	return;
+}
 void if_() //REMINDER: need adjusting
 {
+	if(matching(KEYWORD, "if") == 0)
+		printParserError("Expected 'if' token for conditional statement but received '%s'\n",nextTok->tokenIns);
+	
+	scanner();
+	condition();	
+	
+	scanner();
+	if(matching(KEYWORD, "then") == 0)
+                 printParserError("Expected 'then' token before '%s' token\n",nextTok->tokenIns);
+
+	scanner();
+	stat();
+
+	return; 
+
 }
 void loop1()
 {
+	if(matching(KEYWORD, "while") == 0)
+                 printParserError("Expected 'while' token for loop statement, but received '%s'\n",nextTok->tokenIns);
+	
+	scanner();
+	condition();
+
+	scanner();
+	stat();
+
+	return;
 }
 void loop2()
 {
+	if(matching(KEYWORD, "repeat") == 0)
+                 printParserError("Expected 'repeat' token for loop statement, but received '%s'\n",nextTok->tokenIns);
+
+	scanner(); 
+	stat();
+	
+	scanner();
+	if(matching(KEYWORD, "until") == 0)
+        	printParserError("Expected 'until' token, but received '%s'\n",nextTok->tokenIns);
+
+	scanner();
+	condition();
+	
+	return;
+		
 }
 void assign()
 {
+	if(matching(KEYWORD, "assign") == 0)
+                 printParserError("Expected 'assign', but received '%s'\n",nextTok->tokenIns);
+
+	scanner();
+	if(matching(IDENT, NULL) == 0)
+                 printParserError("Expected an identifier, but received '%s'\n",nextTok->tokenIns);
+
+	scanner();
+	if(matching(OPERATOR, "=") == 0)
+		printParserError("Expected '=' token, but received '%s'\n",nextTok->tokenIns);
+
+	scanner();
+	expr();
+	
+	return;
 }
 void goto_()
 {
+	if(matching(KEYWORD, "portal") == 0)
+                 printParserError("Expected 'portal' token, but received '%s'\n",nextTok->tokenIns);
+
+	scanner();
+	if(matching(IDENT, NULL) == 0)
+                 printParserError("Expected an identifier token, but received '%s'\n",nextTok->tokenIns);
+
+	return;
 }
 void label()
 {
-}
+	if(matching(KEYWORD, "label") == 0)
+                 printParserError("Expected 'label' token, but received '%s'\n",nextTok->tokenIns);
 
+        scanner();
+        if(matching(IDENT, NULL) == 0)
+                 printParserError("Expected an identifier token, but received '%s'\n",nextTok->tokenIns);
+
+        return;
+
+}
+void RO()
+{
+	if(matching(OPERATOR,NULL) == 1){
+		if(strcmp(nextTok->tokenIns,">=") == 0 || 
+			strcmp(nextTok->tokenIns,">=") == 0 ||
+			strcmp(nextTok->tokenIns,">=") == 0 ||
+			strcmp(nextTok->tokenIns,">=") == 0)
+			//Add token to node
+			printf("Milestone 1 \n");
+		else if(strcmp(nextTok->tokenIns,".") == 0){
+			scanner();
+			if(matching(OPERATOR,".") == 0)
+				printParserError("Do you mean '...' ?\n");
+
+			scanner();
+                        if(matching(OPERATOR,".") == 0)
+                                printParserError("Do you mean '...' ?\n");
+		}else
+			printParserError("Expected comparision operator, but received '%s'\n",nextTok->tokenIns);
+
+	}else
+		printParserError("Expected comparision operator, but received '%s'\n",nextTok->tokenIns);
+
+	return;
+}
+void expr()
+{
+	
+}
+void N()
+{
+}
+void N_()
+{
+}
+void A()
+{
+}
+void M()
+{
+}
+void R()
+{
+}
 
 
 
