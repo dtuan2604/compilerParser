@@ -220,7 +220,7 @@ void in()
 void out()
 {
 	if(matching(KEYWORD,"yell") == 0)
-                printParserError("Do you mean 'listen' ? (Received '%s' token)\n",nextTok->tokenIns);
+                printParserError("Do you mean 'yell' ? (Received '%s' token)\n",nextTok->tokenIns);
     
         scanner();
 	expr();
