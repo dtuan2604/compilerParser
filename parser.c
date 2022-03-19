@@ -162,17 +162,15 @@ void stats()
 void stat()
 {
 	int block_flag = 0;
-	if(matching(KEYWORD, NULL) == 1){
+	if(matching(KEYWORD, NULL) == 1 || matching(OPERATOR, "{") == 1){
 		if(strcmp(nextTok->tokenIns,"listen") == 0)
 			in();
 		else if(strcmp(nextTok->tokenIns,"yell") == 0)
 			out();
 		else if(strcmp(nextTok->tokenIns,"if") == 0)
 			if_();
-                else if(strcmp(nextTok->tokenIns,"while") == 0)
-			loop1();
                 else if(strcmp(nextTok->tokenIns,"repeat") == 0)
-			loop2();
+			gen_loop();
                 else if(strcmp(nextTok->tokenIns,"assign") == 0)
 			assign();
                 else if(strcmp(nextTok->tokenIns,"portal") == 0)
@@ -219,7 +217,7 @@ void in()
 
 	return; 
 }
-void out() //REMINDER: need adjusting
+void out()
 {
 	if(matching(KEYWORD,"yell") == 0)
                 printParserError("Do you mean 'listen' ? (Received '%s' token)\n",nextTok->tokenIns);
@@ -230,7 +228,7 @@ void out() //REMINDER: need adjusting
         return; 
 
 }
-void condition() //REMINDER: need adjusting
+void condition() 
 {
 	if(matching(OPERATOR, "[") == 0)
         	printParserError("Expected '[' before '%s' token\n",nextTok->tokenIns);
@@ -250,7 +248,7 @@ void condition() //REMINDER: need adjusting
 
 	return;
 }
-void if_() //REMINDER: need adjusting
+void if_()
 {
 	if(matching(KEYWORD, "if") == 0)
 		printParserError("Expected 'if' token for conditional statement but received '%s'\n",nextTok->tokenIns);
@@ -268,12 +266,21 @@ void if_() //REMINDER: need adjusting
 	return; 
 
 }
-void loop1()
+void gen_loop()
 {
-	if(matching(KEYWORD, "while") == 0)
-                 printParserError("Expected 'while' token for loop statement, but received '%s'\n",nextTok->tokenIns);
+	if(matching(KEYWORD, "repeat") == 0)
+                 printParserError("Expected 'repeat' token for loop statement, but received '%s'\n",nextTok->tokenIns);
 	
 	scanner();
+	if(matching(OPERATOR,"[") == 1){
+		loop1();
+	}else
+		loop2();
+	
+	return;
+}
+void loop1()
+{
 	condition();
 
 	scanner();
@@ -283,10 +290,6 @@ void loop1()
 }
 void loop2()
 {
-	if(matching(KEYWORD, "repeat") == 0)
-                 printParserError("Expected 'repeat' token for loop statement, but received '%s'\n",nextTok->tokenIns);
-
-	scanner(); 
 	stat();
 	
 	scanner();
@@ -344,11 +347,11 @@ void RO()
 {
 	if(matching(OPERATOR,NULL) == 1){
 		if(strcmp(nextTok->tokenIns,">=") == 0 || 
-			strcmp(nextTok->tokenIns,">=") == 0 ||
-			strcmp(nextTok->tokenIns,">=") == 0 ||
-			strcmp(nextTok->tokenIns,">=") == 0)
-			//Add token to node
-			printf("Milestone 1 \n");
+			strcmp(nextTok->tokenIns,"<=") == 0 ||
+			strcmp(nextTok->tokenIns,"==") == 0 ||
+			strcmp(nextTok->tokenIns,"!=") == 0)
+			//REMINDER: Add token to node
+			printf("Compared operator is consumed on line %d \n",nextTok->line);
 		else if(strcmp(nextTok->tokenIns,".") == 0){
 			scanner();
 			if(matching(OPERATOR,".") == 0)
@@ -367,22 +370,82 @@ void RO()
 }
 void expr()
 {
+	N();
+
+	scanner();
+	if(matching(OPERATOR,"-") == 1){
+		scanner();
+		expr();
+	}else{
+		epsilon_flag = 1;
+	}
 	
+	return;
 }
 void N()
 {
+	A();
+	
+	scanner();
+	N_();
+	
+	return;
 }
 void N_()
 {
+	if(matching(OPERATOR, "+") == 1 || matching(OPERATOR, "/") == 1){
+		scanner();
+		A();
+			
+		scanner();
+		N_();
+	}else{
+		epsilon_flag = 1;
+	}
+		
+	return;
 }
 void A()
 {
+	M();
+
+	scanner();
+	if(matching(OPERATOR,"*") == 1){
+		scanner();
+		A();
+	}else{
+		epsilon_flag = 1;
+	}
+	
+	return;
 }
 void M()
 {
+	if(matching(OPERATOR,"%") == 1){
+		scanner();
+		M();
+	}else{
+		R();
+	}
+	
+	return;
 }
 void R()
 {
+	if(matching(OPERATOR,"(") == 1){
+		scanner();
+		expr();
+
+		scanner();
+		if(matching(OPERATOR,")") == 0)
+			printParserError("Expected ')' before '%s' token\n",nextTok->tokenIns);
+	}else if(matching(IDENT, NULL) == 1 || matching(NUMBER, NULL) == 1){
+		//REMINDER: Add token to the node
+		printf("Consume token on line %d\n", nextTok->line); 
+	}else
+		printParserError("Exepcted an expression, or an identifier, or a number, but received '%s'\n",nextTok->tokenIns);
+
+	return;
 }
 
 

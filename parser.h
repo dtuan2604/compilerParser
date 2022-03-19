@@ -22,6 +22,7 @@ void mStat();
 void in();
 void out();
 void if_();
+void gen_loop();
 void loop1();
 void loop2();
 void assign();
