@@ -54,10 +54,14 @@ void upsizeROOT(){
 }
 void destroyROOT(){
 	int i, j;
-	for(i = 0; i < curSize; i++){
-		for(i = 0; j < MAXTOKENS; j++){
+	for(i = 0; i < curr; i++){
+		for(j = 0; j < MAXTOKENS; j++){
 			free(ROOT[i]->tokenList[j]);
 		}
+		free(ROOT[i]);
+		ROOT[i] = NULL;
+	}
+	for(;i<curSize; i++){
 		free(ROOT[i]);
 		ROOT[i] = NULL;
 	}

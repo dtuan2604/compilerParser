@@ -69,6 +69,9 @@ int main(int argc, char** argv)
 	printf("Succesfully parse the program\n");
 	traversePreOrder(root,0);
 
+	//REMINDER: need to implement atExit to clean up memory
+
+	destroyROOT();
 	free(fileName);
 	fileName = NULL;
 	return EXIT_SUCCESS;		
