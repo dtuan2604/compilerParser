@@ -1,6 +1,7 @@
 #ifndef _PARSER_H
 #define _PARSER_H
 #include "token.h"
+#include "tree.h"
 #define PARABUFF 500
 
 void scanner();
@@ -9,11 +10,12 @@ int matching(int Token, char* TokenIns);
 void printParserError(char* fmt, ...);
 
 int isfileEmpty(FILE* fp, char* caller);
-int runParser();
+void copyToken(struct node_t ** newNode);
+struct node_t * runParser();
 
-void program();
-void block();
-void vars();
+struct node_t * program();
+struct node_t * block();
+struct node_t * vars();
 
 void stats();
 void stat();

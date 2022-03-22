@@ -1,9 +1,9 @@
 CC = gcc
 CFLAGS = -Wall -g
 
-SRC = scanner.h parser.h lex.h token.h
+SRC = scanner.h parser.h lex.h token.h tree.h
 
-OBJ = scanner.o parser.o
+OBJ = scanner.o parser.o tree.o
 MASTER_OBJ = main.o
 
 MASTER = frontEnd

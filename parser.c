@@ -75,41 +75,62 @@ int matching(int Token, char* TokenIns)
 	return 0;
 
 }
-int runParser()
+struct node_t * runParser()
 {
+	struct node_t * tempRoot = NULL;
 	fp = fopen(fileName, "r");
 	if(isfileEmpty(fp,parser) == 1)
 		return 0;
 	nextChar = fgetc(fp);
 	
 	scanner();	
-	program();	
+	tempRoot = program();	
 
 	fclose(fp);
 	free(nextTok->tokenIns);
 	free(nextTok);
-	return 1; //the program run successfully
+	return tempRoot; //the program run successfully
 }
+void copyToken(struct node_t ** newNode){
+	int index = (*newNode)->numToken;
+	struct token * tempToken = (*newNode)->tokenList[index];
+	tempToken->tokenID = nextTok->tokenID;
+	tempToken->tokenIns = (char*)malloc(sizeof(nextTok->tokenIns));
+	if(tempToken->tokenIns == NULL){
+		fprintf(stderr,"ERROR: %s: Cannot allocate memory for token instance\n", parser);
+		exit(-1);
+	}
+	strcpy(tempToken->tokenIns, nextTok->tokenIns);
+	tempToken->line = nextTok->line;
+	tempToken->charN = nextTok->charN;
+	(*newNode)->numToken++; 
 
-void program()
+}
+struct node_t * program()
 {
-	vars();
+	struct node_t * tempNode = createNode("program");
+	tempNode->left = vars();
 
 	scanner();
 	if(matching(KEYWORD,"main") == 0)
 		printParserError("Expected 'main' token, but received '%s'\n",nextTok->tokenIns);
-	
+	else
+		copyToken(&tempNode);
+
 	scanner();
-	block();	
-	return;
+	tempNode->right = block();	
+	return tempNode;
 }
-void block()
+struct node_t * block()
 {
+	struct node_t * tempNode = createNode("block");
 	if(matching(OPERATOR,"{") == 0)
 		printParserError("Expected a block of statements, but received '%s'\n",nextTok->tokenIns);
-	
+	else
+		copyToken(&tempNode);
+
 	scanner();
-	vars();
+	tempNode->left = vars();
 	
 	scanner();
 	stats();
@@ -117,37 +138,49 @@ void block()
 	scanner();
 	if(matching(OPERATOR,"}") == 0)
 		printParserError("Reach the end of non-closing block, received %s\n",nextTok->tokenIns);
-
-	return;		
+	else
+		copyToken(&tempNode);
+	return tempNode;		
 
 }
-void vars()
+struct node_t * vars()
 {
+	struct node_t * tempNode = createNode("vars");
 	//create a node and add all token to the node
 	if(matching(KEYWORD,"declare") == 1){
+		copyToken(&tempNode);	
+	
 		scanner();
 		if(matching(IDENT, NULL) == 0)
 			printParserError("Expected an Identifier token after 'declare' token\n");
+		else
+			copyToken(&tempNode);
+
 		scanner();
 		if(matching(OPERATOR,":=") == 0)
 			printParserError("Expected ':=', but received '%s'\n",nextTok->tokenIns);
+		else
+			copyToken(&tempNode);
 		
 		scanner();
 		if(matching(KEYWORD,"whole") == 0)
 			printParserError("Expected data type 'whole', but received '%s'\n",nextTok->tokenIns);
+		else
+			copyToken(&tempNode);
 		
 		scanner();
 		if(matching(OPERATOR,";") == 0) 
                         printParserError("Expected ';' before '%s' token\n",nextTok->tokenIns);
+		else
+			copyToken(&tempNode);
 	
 		scanner();
-		vars();
+		tempNode->left = vars();
 						
 	}else{
 		epsilon_flag = 1;
-		return; //encounter epsilon
 	}
-	return; //should return a node then
+	return tempNode; //should return a node then
 }
 void stats()
 {

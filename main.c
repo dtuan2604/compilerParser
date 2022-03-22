@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "parser.h"
+#include "tree.h"
 
 #define BUFF 200
 
@@ -60,12 +61,13 @@ int main(int argc, char** argv)
 		fprintf(stderr,"ERROR: %s: Please provide one file as an argument to the program\n",prog);
 		return EXIT_FAILURE;
 	}
-
-	if(runParser() == 0)
-		return EXIT_FAILURE;	
+	
+	initROOT();
+	
+	struct node_t * root = runParser();
 	
 	printf("Succesfully parse the program\n");
-
+	traversePreOrder(root,0);
 
 	free(fileName);
 	fileName = NULL;

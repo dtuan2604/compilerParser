@@ -2,7 +2,6 @@
 #define _SCANNER_H
 #include "token.h"
 
-#define NUM_ERRORS 3 
 
 void printScannerError(struct token * tok);
 void printToken(struct token * tok);
