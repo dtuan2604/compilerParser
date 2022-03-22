@@ -114,8 +114,7 @@ struct node_t * program()
 	scanner();
 	if(matching(KEYWORD,"main") == 0)
 		printParserError("Expected 'main' token, but received '%s'\n",nextTok->tokenIns);
-	else
-		copyToken(&tempNode);
+	copyToken(&tempNode);
 
 	scanner();
 	tempNode->right = block();	
@@ -126,20 +125,19 @@ struct node_t * block()
 	struct node_t * tempNode = createNode("block");
 	if(matching(OPERATOR,"{") == 0)
 		printParserError("Expected a block of statements, but received '%s'\n",nextTok->tokenIns);
-	else
-		copyToken(&tempNode);
+	copyToken(&tempNode);
 
 	scanner();
 	tempNode->left = vars();
 	
 	scanner();
-	stats();
+	tempNode->right = stats();
 
 	scanner();
 	if(matching(OPERATOR,"}") == 0)
 		printParserError("Reach the end of non-closing block, received %s\n",nextTok->tokenIns);
-	else
-		copyToken(&tempNode);
+	copyToken(&tempNode);
+	
 	return tempNode;		
 
 }
@@ -153,65 +151,63 @@ struct node_t * vars()
 		scanner();
 		if(matching(IDENT, NULL) == 0)
 			printParserError("Expected an Identifier token after 'declare' token\n");
-		else
-			copyToken(&tempNode);
+		copyToken(&tempNode);
 
 		scanner();
 		if(matching(OPERATOR,":=") == 0)
 			printParserError("Expected ':=', but received '%s'\n",nextTok->tokenIns);
-		else
-			copyToken(&tempNode);
+		copyToken(&tempNode);
 		
 		scanner();
 		if(matching(KEYWORD,"whole") == 0)
 			printParserError("Expected data type 'whole', but received '%s'\n",nextTok->tokenIns);
-		else
-			copyToken(&tempNode);
+		copyToken(&tempNode);
 		
 		scanner();
 		if(matching(OPERATOR,";") == 0) 
                         printParserError("Expected ';' before '%s' token\n",nextTok->tokenIns);
-		else
-			copyToken(&tempNode);
+		copyToken(&tempNode);
 	
 		scanner();
-		tempNode->left = vars();
+		tempNode->middle = vars();
 						
 	}else{
 		epsilon_flag = 1;
 	}
 	return tempNode; //should return a node then
 }
-void stats()
+struct node_t * stats()
 {
-	stat();
+	struct node_t * tempNode = createNode("stats");
+	tempNode->left = stat();
 
 	scanner();
-	mStat();
+	tempNode->right = mStat();
 	
-	return;			
+	return tempNode;	
 
 }
-void stat()
+struct node_t * stat()
 {
+	struct node_t * tempNode = createNode("stat");
 	int block_flag = 0;
 	if(matching(KEYWORD, NULL) == 1 || matching(OPERATOR, "{") == 1){
 		if(strcmp(nextTok->tokenIns,"listen") == 0)
-			in();
+			tempNode->middle = in();
 		else if(strcmp(nextTok->tokenIns,"yell") == 0)
-			out();
+			tempNode->middle = out();
 		else if(strcmp(nextTok->tokenIns,"if") == 0)
-			if_();
+			tempNode->middle = if_();
                 else if(strcmp(nextTok->tokenIns,"repeat") == 0)
-			gen_loop();
+			tempNode->middle = gen_loop();
                 else if(strcmp(nextTok->tokenIns,"assign") == 0)
-			assign();
+			tempNode->middle = assign();
                 else if(strcmp(nextTok->tokenIns,"portal") == 0)
-			goto_();
+			tempNode->middle = goto_();
                 else if(strcmp(nextTok->tokenIns,"label") == 0)
-			label();
+			tempNode->middle = label();
                 else if(strcmp(nextTok->tokenIns,"{") == 0){
-			block();
+			tempNode->middle = block();
 			block_flag = 1;
 		}
 	}else
@@ -221,264 +217,319 @@ void stat()
 	if(block_flag == 0){
 		if(matching(OPERATOR,";") == 0)  
                         printParserError("Expected ';' before '%s' token\n",nextTok->tokenIns);	
+		copyToken(&tempNode);
 	}else
 		epsilon_flag = 1; //assuming after <block> terminal is an epsilon character
-	return;
+	return tempNode;
 }
-void mStat()
+struct node_t * mStat()
 {
+	struct node_t * tempNode = createNode("mStat");
 	if(matching(KEYWORD,NULL) == 1 || matching(OPERATOR,"{") == 1){
-		stat();
+		tempNode->left = stat();
 
 		scanner();
-		mStat();
+		tempNode->right = mStat();
 	}else{
 		epsilon_flag = 1; // received an epsilon token
-		return;
 	}
 
-	return;
+	return tempNode;
 }
-void in()
+struct node_t * in()
 {
+	struct node_t * tempNode = createNode("in");
 	if(matching(KEYWORD,"listen") == 0)
 		printParserError("Do you mean 'listen' ? (Received '%s' token)\n",nextTok->tokenIns);
-	
+	copyToken(&tempNode);
+
 	scanner();
 	if(matching(IDENT,NULL) == 0)
 		printParserError("Expected an identifier, but received '%s' token\n",nextTok->tokenIns);
-
-	return; 
+	copyToken(&tempNode);
+	
+	return tempNode; 
 }
-void out()
+struct node_t * out()
 {
+	struct node_t * tempNode = createNode("out");
 	if(matching(KEYWORD,"yell") == 0)
                 printParserError("Do you mean 'yell' ? (Received '%s' token)\n",nextTok->tokenIns);
-    
+	copyToken(&tempNode);
+
         scanner();
-	expr();
+	tempNode->middle = expr();
 	
-        return; 
+        return tempNode; 
 
 }
-void condition() 
+struct node_t * condition() 
 {
+	struct node_t * tempNode = createNode("condition");
 	if(matching(OPERATOR, "[") == 0)
         	printParserError("Expected '[' before '%s' token\n",nextTok->tokenIns);
+	copyToken(&tempNode);
 
         scanner();
-        expr();
+        tempNode->left = expr();
 
         scanner();
-        RO();
+        tempNode->middle = RO();
 
         scanner();
-        expr();
+        tempNode->right = expr();
 
         scanner();
         if(matching(OPERATOR, "]") == 0)
-                 printParserError("Expected ']' before '%s' token\n",nextTok->tokenIns);
-
-	return;
+        	printParserError("Expected ']' before '%s' token\n",nextTok->tokenIns);
+	copyToken(&tempNode);
+	
+	return tempNode;
 }
-void if_()
+struct node_t * if_()
 {
+	struct node_t * tempNode = createNode("if");
 	if(matching(KEYWORD, "if") == 0)
 		printParserError("Expected 'if' token for conditional statement but received '%s'\n",nextTok->tokenIns);
-	
+	copyToken(&tempNode);
+
 	scanner();
-	condition();	
+	tempNode->left = condition();	
 	
 	scanner();
 	if(matching(KEYWORD, "then") == 0)
                  printParserError("Expected 'then' token before '%s' token\n",nextTok->tokenIns);
+	copyToken(&tempNode);
 
 	scanner();
-	stat();
+	tempNode->right = stat();
 
-	return; 
-
+	return tempNode; 
 }
-void gen_loop()
+struct node_t * gen_loop()
 {
+	struct node_t * tempNode = createNode("general loop");
+
 	if(matching(KEYWORD, "repeat") == 0)
                  printParserError("Expected 'repeat' token for loop statement, but received '%s'\n",nextTok->tokenIns);
-	
+	copyToken(&tempNode);
+
 	scanner();
 	if(matching(OPERATOR,"[") == 1){
-		loop1();
+		tempNode->middle = loop1();
 	}else
-		loop2();
+		tempNode->middle = loop2();
 	
-	return;
+	return tempNode;
 }
-void loop1()
+struct node_t * loop1()
 {
-	condition();
+	struct node_t * tempNode = createNode("loop1");
+	
+	tempNode->left = condition();
 
 	scanner();
-	stat();
+	tempNode->right = stat();
 
-	return;
+	return tempNode;
 }
-void loop2()
+struct node_t * loop2()
 {
-	stat();
+	struct node_t * tempNode = createNode("loop2");
+
+	tempNode->left = stat();
 	
 	scanner();
 	if(matching(KEYWORD, "until") == 0)
         	printParserError("Expected 'until' token, but received '%s'\n",nextTok->tokenIns);
+	copyToken(&tempNode);
 
 	scanner();
-	condition();
+	tempNode->right = condition();
 	
-	return;
-		
+	return tempNode;
 }
-void assign()
+struct node_t * assign()
 {
+	struct node_t * tempNode = createNode("assign");
+
 	if(matching(KEYWORD, "assign") == 0)
                  printParserError("Expected 'assign', but received '%s'\n",nextTok->tokenIns);
-
+	copyToken(&tempNode);
+	
 	scanner();
 	if(matching(IDENT, NULL) == 0)
                  printParserError("Expected an identifier, but received '%s'\n",nextTok->tokenIns);
+	copyToken(&tempNode);
 
 	scanner();
 	if(matching(OPERATOR, "=") == 0)
 		printParserError("Expected '=' token, but received '%s'\n",nextTok->tokenIns);
-
-	scanner();
-	expr();
+	copyToken(&tempNode);
 	
-	return;
+	scanner();
+	tempNode->middle = expr();
+	
+	return tempNode;
 }
-void goto_()
+struct node_t * goto_()
 {
+	struct node_t * tempNode = createNode("goto");
 	if(matching(KEYWORD, "portal") == 0)
                  printParserError("Expected 'portal' token, but received '%s'\n",nextTok->tokenIns);
+	copyToken(&tempNode);
 
 	scanner();
 	if(matching(IDENT, NULL) == 0)
                  printParserError("Expected an identifier token, but received '%s'\n",nextTok->tokenIns);
+	copyToken(&tempNode);
 
-	return;
+	return tempNode;
 }
-void label()
+struct node_t * label()
 {
+	struct node_t * tempNode = createNode("label");
+
 	if(matching(KEYWORD, "label") == 0)
                  printParserError("Expected 'label' token, but received '%s'\n",nextTok->tokenIns);
+	copyToken(&tempNode);
 
         scanner();
         if(matching(IDENT, NULL) == 0)
                  printParserError("Expected an identifier token, but received '%s'\n",nextTok->tokenIns);
+	copyToken(&tempNode);
 
-        return;
-
+        return tempNode;
 }
-void RO()
+struct node_t * RO()
 {
+	struct node_t * tempNode = createNode("RO");
+
 	if(matching(OPERATOR,NULL) == 1){
 		if(strcmp(nextTok->tokenIns,">=") == 0 || 
 			strcmp(nextTok->tokenIns,"<=") == 0 ||
 			strcmp(nextTok->tokenIns,"==") == 0 ||
 			strcmp(nextTok->tokenIns,"!=") == 0)
-			//REMINDER: Add token to node
-			printf("Compared operator is consumed on line %d \n",nextTok->line);
+			copyToken(&tempNode);
 		else if(strcmp(nextTok->tokenIns,".") == 0){
+			copyToken(&tempNode);
+
 			scanner();
 			if(matching(OPERATOR,".") == 0)
 				printParserError("Do you mean '...' ?\n");
-
+			copyToken(&tempNode);
+			
 			scanner();
                         if(matching(OPERATOR,".") == 0)
                                 printParserError("Do you mean '...' ?\n");
+			copyToken(&tempNode);
 		}else
 			printParserError("Expected comparision operator, but received '%s'\n",nextTok->tokenIns);
 
 	}else
 		printParserError("Expected comparision operator, but received '%s'\n",nextTok->tokenIns);
 
-	return;
+	return tempNode;
 }
-void expr()
+struct node_t * expr()
 {
-	N();
+	struct node_t * tempNode = createNode("expr");
+
+	tempNode->left = N();
 
 	scanner();
 	if(matching(OPERATOR,"-") == 1){
+		copyToken(&tempNode);
+
 		scanner();
-		expr();
+		tempNode->right = expr();
 	}else{
 		epsilon_flag = 1;
 	}
 	
-	return;
+	return tempNode;
 }
-void N()
+struct node_t * N()
 {
-	A();
+	struct node_t * tempNode = createNode("N");
+
+	tempNode->left = A();
 	
 	scanner();
-	N_();
+	tempNode->right = N_();
 	
-	return;
+	return tempNode;
 }
-void N_()
+struct node_t * N_()
 {
+	struct node_t * tempNode = createNode("N'");
 	if(matching(OPERATOR, "+") == 1 || matching(OPERATOR, "/") == 1){
+		copyToken(&tempNode);
+	
 		scanner();
-		A();
+		tempNode->left = A();
 			
 		scanner();
-		N_();
+		tempNode->right = N_();
 	}else{
 		epsilon_flag = 1;
 	}
 		
-	return;
+	return tempNode;
 }
-void A()
+struct node_t * A()
 {
-	M();
+	struct node_t * tempNode = createNode("A");
+
+	tempNode->left = M();
 
 	scanner();
 	if(matching(OPERATOR,"*") == 1){
+		copyToken(&tempNode);
+
 		scanner();
-		A();
+		tempNode->right = A();
 	}else{
 		epsilon_flag = 1;
 	}
 	
-	return;
+	return tempNode;
 }
-void M()
+struct node_t * M()
 {
+	struct node_t * tempNode = createNode("M");
+
 	if(matching(OPERATOR,"%") == 1){
+		copyToken(&tempNode);
+	
 		scanner();
-		M();
+		tempNode->middle = M();
 	}else{
-		R();
+		tempNode->middle = R();
 	}
 	
-	return;
+	return tempNode;
 }
-void R()
+struct node_t * R()
 {
+	struct node_t * tempNode = createNode("R");
+
 	if(matching(OPERATOR,"(") == 1){
+		copyToken(&tempNode);
+
 		scanner();
-		expr();
+		tempNode->middle = expr();
 
 		scanner();
 		if(matching(OPERATOR,")") == 0)
 			printParserError("Expected ')' before '%s' token\n",nextTok->tokenIns);
+		copyToken(&tempNode);
 	}else if(matching(IDENT, NULL) == 1 || matching(NUMBER, NULL) == 1){
-		//REMINDER: Add token to the node
-		printf("Consume token on line %d\n", nextTok->line); 
+		copyToken(&tempNode);
 	}else
 		printParserError("Exepcted an expression, or an identifier, or a number, but received '%s'\n",nextTok->tokenIns);
 
-	return;
+	return tempNode;
 }
 
 

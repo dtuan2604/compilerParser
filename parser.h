@@ -17,27 +17,27 @@ struct node_t * program();
 struct node_t * block();
 struct node_t * vars();
 
-void stats();
-void stat();
-void mStat();
+struct node_t * stats();
+struct node_t * stat();
+struct node_t * mStat();
 
-void in();
-void out();
-void if_();
-void gen_loop();
-void loop1();
-void loop2();
-void assign();
-void goto_();
-void label();
-void condition(); //extra non-terminal
-void RO();
+struct node_t * in();
+struct node_t * out();
+struct node_t * if_();
+struct node_t * gen_loop();
+struct node_t * loop1();
+struct node_t * loop2();
+struct node_t * assign();
+struct node_t * goto_();
+struct node_t * label();
+struct node_t * condition(); //extra non-terminal
+struct node_t * RO();
 
-void expr();
-void N();
-void N_();
-void A();
-void M();
-void R();
+struct node_t * expr();
+struct node_t * N();
+struct node_t * N_();
+struct node_t * A();
+struct node_t * M();
+struct node_t * R();
 
 #endif
