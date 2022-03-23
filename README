@@ -1,26 +1,28 @@
-## Project 1: The Scanner
+## Project 2: The Parser
 
 Name:		Duong Tuan Hoang
 Section: 	CMPSCI 4280 - Program Translation Project
 VCS:		git
-Date:		02/24/2022
+Date:		03/23/2022
 Project Option:	Option 3 with FSA table + driver (100 points) 
 
 ## Files	
 	main.c - the main program to process the input
-	testScanner.h, testScanner.c - the testing program
+	parser.c, parser.h - the parser of the program
+	node.h - header file defining the nodes of the tree
+	tree.c, tree.h - file containing functions to build and destroy the parse tree
 	token.h - header file defining tokenID and token data type
 	lex.h - header file defining basic lexical definition
 	helper.h - header file containing FSA table and references to operators, keywords, token names and errors
-	scanner.h, scanner.c - containing FSA Driver and other helper function
+	scanner.h, scanner.c - the scanner program
 	Makefile 	
 
 ## Run the program
 	> make
-	> To give the program keyboard input, run: ./P0 (remember to Enter and then Ctrl + D 
+	> To give the program keyboard input, run: ./frontEnd (remember to Enter and then Ctrl + D 
 	to finish the input)
-	> To direct the input from a file into program, run: ./P0 < filename
-	> To let the program read input from a file, run: ./P0 filename
+	> To direct the input from a file into program, run: ./frontEnd < filename
+	> To let the program read input from a file, run: ./frontEnd filename
 
 ## Remove all executable and object files
 
@@ -30,7 +32,17 @@ Project Option:	Option 3 with FSA table + driver (100 points)
 	> Based on the lexical definition provided, the scanner will parse through the file and 
 	export 4 types of token "identifier", "number", "operator", and "EOF".
 	> The scanner will automatically skip whitespace and comments surrounded by "##".
-	> The token is then printed to the output with its instance, token type, line number and 
-	which position this token starts.
+	> The parser will call scanner every time it needs a token 
+	> The parser will parse the program based on the BNF grammar provided. There are some modifications 
+	made to ensure the programm is in LL(1).
+	Modification: 
+		<stat> -> .... | <general loop>;|... <instead of loop1 and loop2>
+		<general loop> -> repeat (<loop1> | <loop2>)
+		The fragment '[<expr><RO><expr>]' is turned into <condition> for short
+		<N> -> <A><N'>
+		<N'>-> +<A><N'> | /<A><N'> | empty
+ 
 	> This scanner can determine 5 errors which is specified in the lex.h. If the program encounter
-	error, the error is reported to the screen and then the program is terminated. 	
+	error, the error is reported to the screen and then the program is terminated. 
+	> The parser will give the specific error if it found out that the current token doesn't not match
+	with the expected token	

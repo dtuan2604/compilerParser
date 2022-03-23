@@ -25,10 +25,14 @@ void printParserError(char* fmt, ...)
 	
 	printRed();
 	printf("%s:%d:%d: PARSER ERROR: ",fileName,nextTok->line,nextTok->charN);
+	
 	printYellow();
 	printf(buf);
+	
 	fflush(stdout);
-	printReset();	
+	printReset();
+
+	free(nextTok);	
 	exit(-1);
 }
 
