@@ -67,7 +67,6 @@ int main(int argc, char** argv)
 	
 	struct node_t * root = runParser();
 	
-	printf("Succesfully parse the program\n");
 	traversePreOrder(root,0);
 
 	free(fileName);
