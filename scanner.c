@@ -171,7 +171,7 @@ struct token * FSADriver(FILE* fp)
                         strcpy(tok->tokenIns, stringIns);
                         tok->line = countLine;
                         tok->charN = startChar;
-			break;	
+			printScannerError(tok);
 		}
 
 		nextState = FSATable[state][index];
